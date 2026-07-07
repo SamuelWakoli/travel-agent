@@ -47,8 +47,8 @@ The agent includes three integrated tools:
 
 ```json
 {
-  "@google/adk": "^0.3.0",
-  "@google/adk-devtools": "^0.3.0",
+  "@google/adk": "^1.3.0",
+  "@google/adk-devtools": "^1.3.0",
   "typescript": "^5.9.3"
 }
 ```

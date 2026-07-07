@@ -19,9 +19,9 @@ const weatherTool = new FunctionTool({
     latitude: z.number(),
     longitude: z.number(),
   }),
-  execute: async ({ latitude, longitude }) => {
+  execute: async (position) => {
     const response = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`,
+      `https://api.open-meteo.com/v1/forecast?latitude=${position.latitude}&longitude=${position.longitude}&current_weather=true`,
     );
     const data = await response.json();
     return JSON.stringify(data.current_weather);
@@ -69,9 +69,20 @@ const geocodeTool = new FunctionTool({
       ),
   }),
   execute: async ({ location }) => {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`,
-    );
+    const url = new URL("https://nominatim.openstreetmap.org/search");
+
+    url.searchParams.set("q", location);
+    url.searchParams.set("format", "jsonv2");
+    url.searchParams.set("limit", "1");
+    url.searchParams.set("addressdetails", "1");
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "Travel Assistant Agent/1.0 (contact: samwwakoli@gmail.com)",
+      },
+    });
+
     const data = await response.json();
     if (data.length === 0) {
       return JSON.stringify({ error: "Location not found" });
@@ -91,7 +102,7 @@ const geocodeTool = new FunctionTool({
  */
 export const travelAssistant = new LlmAgent({
   name: "travel_assistant",
-  model: "gemini-2.5-flash", // Or your preferred model
+  model: "gemini-2.5-flash-lite", // Or your preferred model
   instruction: `
     You are a helpful Travel Concierge.
     Your goal is to provide weather updates and interesting facts about locations.
